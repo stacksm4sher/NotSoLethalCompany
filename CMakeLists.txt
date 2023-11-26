@@ -40,5 +40,5 @@ find_library(
 
 target_link_libraries(
         NotSoLethalCompany
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib/bin/MinHook.x64.dll
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/MinHook/bin/MinHook.x64.dll
 )
