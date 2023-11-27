@@ -1,29 +1,104 @@
 #include "esp.h"
+#include <logger.h>
 
-int cnt = 0;
+int pCnt = 0;
 
 // todo finish with rendering
 void
-renderEsp(void *entityThis, vec3 *entityV3, void **scrapThisArray, vec3 **scrapV3Array, unsigned int scrapV3ArraySize)
+renderEsp(void *entityThis, vec3 *pEntityV3, vec3 *pLocalPlayerV3)
 {
-    if (cnt % 512 == 0)
+    if (pCnt % 512 == 0)
     {
-        printf("Entity: { %llu }; Position: { x: %f, y: %f, z: %f }\n", (unsigned long long) entityThis, entityV3->x, entityV3->y,
-               entityV3->z);
+
+        log_trace(
+                "Entity address: { 0x%llx }; Position: { x: %f, y: %f, z: %f } Position struct address: { 0x%llx }\n",
+                (unsigned long long) entityThis,
+                pEntityV3->x,
+                pEntityV3->y,
+                pEntityV3->z,
+                (unsigned long long) pEntityV3
+        );
+
+        log_trace(
+                "Player: { 0x%llx }; Position: { x: %f, y: %f, z: %f } Position struct address: { 0x%llx }\n",
+                (unsigned long long) entityThis,
+                pLocalPlayerV3->x,
+                pLocalPlayerV3->y,
+                pLocalPlayerV3->z,
+                (unsigned long long) pLocalPlayerV3
+        );
+
     }
 
-    cnt++;
+//    printf("log2\n");
+    pCnt++;
+//    printf("log3\n");
 }
+
+//void *parentClazz;
+//const char *name;
+//void *getMethod;
+//void *setMethod;
+//unsigned int attrs;
 
 void
 detourUpdate(void *this)
 {
-    vec3 *serverPosition = GetFieldValue("EnemyAI", "serverPosition", "", GAME_ASSEMBLY, this);
+    void *clazz = GetClazz("HUDManager", "", GAME_ASSEMBLY);
+    monoProperty *property = GetProperty(clazz, "Instance");
 
-//    renderEsp(this, serverPosition, objectArray, scrapVec3Array, arraySize);
-    renderEsp(this, serverPosition, NULL, NULL, 0);
+//    log_trace("Property address: 0x%llx", (unsigned long long) property);
 
-    free(serverPosition);
+    log_trace(
+            "Property address: 0x%llx\nStructure:\n{\n\tparenClazz address: 0x%llx\n\tname: %s\n\tgetter address: 0x%llx\n\tsetter address: 0x%llx\n\tattrs: %d\n}",
+            (unsigned long long) property,
+            (unsigned long long) property->parentClazz,
+            property->name,
+            (unsigned long long) property->getMethod,
+            (unsigned long long) property->setMethod,
+            property->attrs
+    );
+    void *hudManagerInstance = GetStaticFieldValue("HUDManager", "k__BackingField;", "", GAME_ASSEMBLY, 8);
+
+    if (hudManagerInstance == NULL) {
+        log_error("Skipping detourUpdate for EnemyAI after received NULL from GetStaticFieldValue for HudManager#Instance");
+        pUpdateATarget(this);
+        return;
+    }
+
+    void *localPlayer = GetFieldValue("HUDManager", "localPlayer", "", GAME_ASSEMBLY, hudManagerInstance, 8);
+
+    if (localPlayer == NULL) {
+        log_error("Skipping detourUpdate for EnemyAI after received NULL from GetFieldValue for HudManager.localPlayer");
+        pUpdateATarget(this);
+        return;
+    }
+
+    vec3 *localPlayerServerPosition = GetFieldValue(
+            "PlayerControllerB", "serverPlayerPosition", "", GAME_ASSEMBLY, localPlayer, sizeof(struct Vector3));
+
+    if (localPlayerServerPosition == NULL) {
+        log_error("Skipping detourUpdate for EnemyAI after received NULL from GetFieldValue for PlayerControllerB.serverPlayerPosition");
+        pUpdateATarget(this);
+        return;
+    }
+
+    vec3 *enemyServerPosition = GetFieldValue("EnemyAI", "enemyServerPosition", "", GAME_ASSEMBLY, this, sizeof(struct Vector3));
+
+    if (enemyServerPosition == NULL) {
+        log_error("Skipping detourUpdate for EnemyAI after received NULL from GetFieldValue for EnemyAI enemyServerPosition");
+        pUpdateATarget(this);
+        return;
+    }
+
+//    renderEsp(this, enemyServerPosition, objectArray, scrapVec3Array, arraySize);
+//    renderEsp(this, enemyServerPosition, NULL, NULL, 0);
+    renderEsp(this, enemyServerPosition, localPlayerServerPosition);
+
+    free(hudManagerInstance);
+    free(localPlayer);
+    free(localPlayerServerPosition);
+    free(enemyServerPosition);
 
     pUpdateATarget(this);
 }
