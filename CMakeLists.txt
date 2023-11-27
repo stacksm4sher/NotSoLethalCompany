@@ -30,6 +30,7 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/lib/MinHook/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/logger/include
 )
 
 find_library(
@@ -41,4 +42,5 @@ find_library(
 target_link_libraries(
         NotSoLethalCompany
         ${CMAKE_CURRENT_SOURCE_DIR}/lib/MinHook/bin/MinHook.x64.dll
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/logger/bin/liblogger.dll
 )
