@@ -2,6 +2,8 @@
 
 #include "util.h"
 
+HINSTANCE pHinstance;
+
 BOOL WINAPI
 DllMain(HINSTANCE hinstDLL,  // handle to DLL module
         DWORD fdwReason,     // reason for calling function
