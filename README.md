@@ -11,6 +11,7 @@ DO NOT DISTRIBUTE THIS CODE FOR DIRECT USE, THE CODE IS FOR INFORMATIONAL PURPOS
 # Dependencies
 
 1. [MinHook 1.3.3](https://github.com/TsudaKageyu/minhook)
+2. My logging libary (will upload it soon)
 
 # How to cook
 
