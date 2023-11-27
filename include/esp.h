@@ -8,8 +8,8 @@
 
 typedef void(*UpdateA)(void *this);
 
-static UpdateA pUpdateA = NULL;
-static UpdateA pUpdateATarget;
+extern UpdateA pUpdateA;
+extern UpdateA pUpdateATarget;
 
 struct Vector3 {
     float x;
